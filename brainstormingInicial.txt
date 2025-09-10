@@ -1,0 +1,19 @@
+El objetivo es hacer una aplicación web que despliegue una historia interactiva.
+
+Cada página será un capítulo de la historia, al final de ella el usuario tendrá 
+opciones para escoger el siguiente capítulo. En caso de ser el final, no habrá opciones.
+
+Objeto de la aplicación web:
+- Una estructura para representar un capítulo
+
+Funciones para que el programa corra:
+- Función para procesar JSON
+- Función(es) para desplegar el capítulo 
+- Función para recibir input del usuario 
+- Función para redirigir a otro capítulo
+
+
+Estructura de código:
+- Archivo main para iniciar el juego
+- Archivo Handler para las comunicaciones de HTML
+- Archivo para las funcionalidades del juego 
