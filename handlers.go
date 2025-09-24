@@ -1,29 +1,68 @@
 package cyoa
 
 import (
-	"fmt"
+	"html/template"
 	"log"
 	"net/http"
+	"strings"
 )
 
-func homeHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("This is the Home Page XD")
+func init() {
+	tpl = template.Must(template.New("").Parse(defaultHandlerTmpl))
 }
 
-func aboutHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Println("Esta es la ágina del About u.u")
+var tpl *template.Template
+
+var defaultHandlerTmpl = `
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Choose Your Own Adventure</title>
+  </head>
+  <body>
+  	<h1>{{.Title}} </h1>
+	{{range .Paragraphs }}
+		<p>{{.}}</p>
+	{{end}}
+	{{if .Options}}
+		<ul>
+		{{range .Options}}
+			<li><a href="/{{.Chapter}}">{{.Text}}</a></li>
+		{{end}}
+		</ul>
+	{{else}}
+	<h3>The end</h3>
+	{{end}}
+  </body>
+</html>`
+
+type handler struct {
+	s Story
 }
 
-func StartingServer() {
-	mux := http.NewServeMux()
+func NewHandler(s Story) http.Handler {
+	h := handler{s}
+	return h
+}
 
-	mux.HandleFunc("/", homeHandler)
-	mux.HandleFunc("/about", aboutHandler)
+func (h handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
+	path := strings.TrimSpace(r.URL.Path)
 
-	log.Println("Server starting on :8080")
-
-	err := http.ListenAndServe(":8080", mux)
-	if err != nil {
-		log.Fatal("Server failed to start: ", err)
+	if path == "" || path == "/" {
+		path = "/intro"
 	}
+	path = path[1:]
+
+	if chapter, ok := h.s[path]; ok {
+		// En caso de encontar el chapter
+		err := tpl.Execute(w, chapter)
+		if err != nil {
+			log.Printf("%v", err)
+			http.Error(w, "Something went wrong...", http.StatusInternalServerError)
+		}
+		return
+	}
+	http.Error(w, "Chapter not found", http.StatusNotFound)
+
 }

@@ -63,7 +63,7 @@ func ChoosingOption(options []Option) string {
 	fmt.Scanf("%d\n", &selected_option)
 
 	// Returns the index of the selected option
-	selected_chapter := options[selected_option].Arc
+	selected_chapter := options[selected_option].Chapter
 	return selected_chapter
 }
 
@@ -72,7 +72,7 @@ func InitGame(story Story, current_chapter *string) {
 	for game_continues := true; game_continues; {
 
 		fmt.Printf("\n---------Chapter: %s---------\n", story[*current_chapter].Title)
-		ReadChapterText(story[*current_chapter].Story)
+		ReadChapterText(story[*current_chapter].Paragraphs)
 		if len(story[*current_chapter].Options) > 0 {
 			*current_chapter = ChoosingOption(story[*current_chapter].Options)
 		} else {
@@ -85,15 +85,15 @@ func InitGame(story Story, current_chapter *string) {
 // Structures
 // Defining structures to store data from JSON (remember flags for decoding)
 
+type Chapter struct {
+	Title      string   `json:"title"`
+	Paragraphs []string `json:"story"`
+	Options    []Option `json:"options"`
+}
+
 type Option struct {
-	Text string `json:"text"`
-	Arc  string `json:"arc"`
+	Text    string `json:"text"`
+	Chapter string `json:"arc"`
 }
 
-type Arc struct {
-	Title   string   `json:"title"`
-	Story   []string `json:"story"`
-	Options []Option `json:"options"`
-}
-
-type Story map[string]Arc
+type Story map[string]Chapter
